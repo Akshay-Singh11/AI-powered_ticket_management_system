@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "inngest-dev":"npx inngest dev-cli@latest dev"
+    "inngest-dev": "npx inngest dev-cli@latest dev"
   },
   "keywords": [],
   "author": "",

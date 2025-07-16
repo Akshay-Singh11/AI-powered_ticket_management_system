@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     password:{type:String,required:true},
     role:{type:String,default:"user",enum:["user","admin","moderator"]},
     skills:[String],
-    createdAt:{typ:Date,default:Date.now}
+    createdAt:{type:Date,default:Date.now}
 })
 
 export default mongoose.model("User",userSchema)

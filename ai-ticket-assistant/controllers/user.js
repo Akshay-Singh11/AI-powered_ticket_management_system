@@ -6,7 +6,7 @@ import { inngest } from "../inngest/client.js";
 export const signup = async (req, res) => {
   const { email, password, skills = [] } = req.body;
   try {
-    const hashed = bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hashed, skills });
 
     // Fire inngest event
@@ -32,10 +32,10 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = User.findOne({ email });
+    const user = await User.findone({ email });
     if (!user) return res.status(401).json({ error: "User not found " });
 
-    const isMatch = awaitbcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
       return res.status(401).json({ error: "Invalid credentials " });
     const token = jwt.sign(
@@ -54,7 +54,7 @@ export const logout = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) return res.status(401).json({ error: "Unauthorized" });
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) return res.status(401).json(error, "Unauthorized");
+      if (err) return res.status(401).json({ error: "Unauthorized"});
       res.json({ message: "Logout succesfully" });
     });
   } catch (error) {
@@ -70,33 +70,32 @@ export const updateUser = async (req, res) => {
         error: "Forbidden",
       });
     }
-    const user = await User.findOne({email})
-    if(!user) return res.status(401).json({error:"User not found"})
+    const user = await User.findOne({ email })
+    if (!user) return res.status(401).json({ error: "User not found" })
 
     await User.updateOne(
-        {email},
-        {skills:skills.length? skills:user.skills,role}
+      { email },
+      { skills: skills.length ? skills : user.skills, role }
     )
-    return res.json({message:"User updated successfully"})
-  } 
+    return res.json({ message: "User updated successfully" })
+  }
   catch (error) {
     res.status(500).json({ error: "Update failed", details: error.message });
   }
 };
 
-export const getUser = async(req,res)=>{
-    try{
-        if(req.users.role !== "admin"){
-            return res.status(403).jsom({error:"Forbidden"});
-        }
-        const user = await User.find().select("-password");
+export const getUser = async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    const user = await User.find().select("-password");
 
-       return res.json({users});
-    }
-    catch(error)
-    {
-        res.status(500).json({ error: "Get users failed", details: error.message });
-    }
+    return res.json({ user });
+  }
+  catch (error) {
+    res.status(500).json({ error: "Get users failed", details: error.message });
+  }
 }
 
 

@@ -1,6 +1,7 @@
 import {inngest} from "../inngest/client.js"
 import Ticket from "../models/ticket.js";
 import User from "../models/user.js";
+import mongoose from "mongoose";
 
 export const createTicket = async (req, res) => {
     try {
@@ -57,11 +58,17 @@ export const getTickets = async (req, res) => {
 }
 
 export const getTicket = async (req, res) => {
+ const { id } = req.params;
+
+ if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid ticket ID" });
+  }
+
     try {
         const user = req.user
         let ticket;
         if (user.role !== "user") {
-            ticket = await  Ticket.findById(req.params.id)
+            ticket = await  Ticket.findById(id)
                 .populate("assignedTo", ["email", "_id"])
 
         }
@@ -75,6 +82,7 @@ export const getTicket = async (req, res) => {
         if (!ticket) {
             return res.status(404).json({ message: "Ticket not found" })
         }
+        console.log(ticket)
         return res.status(200).json(ticket)
     }
     catch (error) {

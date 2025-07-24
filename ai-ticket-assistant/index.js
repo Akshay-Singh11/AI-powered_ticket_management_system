@@ -28,7 +28,7 @@ mongoose
     .then(() => {
         console.log("MongoDB connected successfully");
         app.listen(PORT, () => console.log("Server at http://localhost:3000"));
+        
 
     })
     .catch((err) => console.error("MongoDB error", err))
-

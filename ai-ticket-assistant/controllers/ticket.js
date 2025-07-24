@@ -2,6 +2,7 @@ import {inngest} from "../inngest/client.js"
 import Ticket from "../models/ticket.js";
 import User from "../models/user.js";
 import mongoose from "mongoose";
+import analyzeTicket from "../utils/ai.js";
 
 export const createTicket = async (req, res) => {
     try {
@@ -9,24 +10,13 @@ export const createTicket = async (req, res) => {
         if (!title || !description) {
             return res.status(400).json({ message: "Title and description are required" });
         }
-        const newTicket = await Ticket.create({
-            title,
-            description,
-            createdBy: req.user._id.toString()
-        })
-        await inngest.send({
-            name: "ticket.created",
-            data: {
-                ticketId: newTicket._id.toString(),
-                title,
-                description,
-                createdBy: req.user._id.toString()
-            }
-
-        });
+        const resp = await analyzeTicket (req.body);
+        let cleanresponse = resp
+        
+       
         return res.status(201).json({
             message: "Ticket created and processing successfully",
-            ticket: newTicket
+            ticket: resp
         })
     }
     catch (error) {

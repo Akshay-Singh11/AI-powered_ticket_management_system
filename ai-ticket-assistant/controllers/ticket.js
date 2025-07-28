@@ -4,26 +4,27 @@ import User from "../models/user.js";
 import mongoose from "mongoose";
 import analyzeTicket from "../utils/ai.js";
 
+
 export const createTicket = async (req, res) => {
     try {
-        const { title, description } = req.body
-        if (!title || !description) {
-            return res.status(400).json({ message: "Title and description are required" });
-        }
-        const resp = await analyzeTicket (req.body);
-        let cleanresponse = resp
-        
-       
-        return res.status(201).json({
-            message: "Ticket created and processing successfully",
-            ticket: resp
-        })
+        const { title, description, createdBy } = req.body;
+
+        // Your Ticket Creation Logic
+        const ticket = new Ticket({ title, description, createdBy });
+
+        // Analyze ticket using AI (safe wrapped)
+        const aiAnalysis = await analyzeTicket(ticket);
+
+        ticket.analysisResult = aiAnalysis;
+        await ticket.save();
+
+        return res.status(201).json({ message: "Ticket created successfully", ticket });
+    } catch (error) {
+        console.error("Error creating ticket:", error.message);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
     }
-    catch (error) {
-        console.error("Error creating ticket", error.message)
-        return res.status(500).json({ message: "Internal server error" })
-    }
-}
+};
+
 
 export const getTickets = async (req, res) => {
     try {
